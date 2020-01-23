@@ -7,9 +7,5 @@ output$shinytest <- renderGvis({
                                                          input$firstword, input$tree_type),
                                       height = "1000px", width = "800px"
                        )
-  )
-  )
+  ))
 })
-
-# hide(id = "loading-content", anim = TRUE, animType = "fade")    
-# show("app-content")

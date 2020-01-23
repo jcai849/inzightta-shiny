@@ -1,6 +1,6 @@
 ######### Create reactive object merged text. Both for Dispersion Plot and for Readability
 merged <- reactive({
-  merge_id(x = imported(), source = input$import_from, groups = input$groups)
+  merge_id(x = imported_filtered(), source = input$import_from, groups = input$groups)
 })
 
 
@@ -13,10 +13,10 @@ observeEvent(input$create_kwic, {
              case_ins = input$disp_case_insensitive)
   })
   
-  output$view <- renderDT({
-    kwic <- ins()
-    data.frame("pre" = kwic$pre, "keyword" = kwic$keyword, "post" = kwic$post)
-  })
+  # output$view <- renderDataTable({
+  #   kwic <- ins()
+  #   data.frame("pre" = kwic$pre, "keyword" = kwic$keyword, "post" = kwic$post)
+  # })
   ####
   new.pts <- reactive({
     dt <- tryCatch({
@@ -87,7 +87,7 @@ observeEvent(input$create_kwic, {
     return(p2)
   })
   
-  output$keyword_table <- renderDT({
+  output$keyword_table <- DT::renderDataTable({
     df <- data.frame(points)
     if (input$line_num == TRUE){
       data.frame("doc" = df$docname, "pre" = df$pre, "keyword" = df$keyword, "post" = df$post)
@@ -95,5 +95,5 @@ observeEvent(input$create_kwic, {
     else {
       data.frame("pre" = df$pre, "keyword" = df$keyword, "post" = df$post)
     }
-  })
+  }, filter = "top")
 })

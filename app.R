@@ -19,6 +19,7 @@ if(!require(pacman)) install.packages("pacman")
 # library(rtweet)
 # library(shinyjs)
 # library(shinybusy)
+# library(shinyWidgets)
 # library(GuardianR)
 # library(quanteda)
 # library(jsonlite)
@@ -59,7 +60,8 @@ pacman::p_load(
                tidyRSS, 
                rtweet, 
                shinyjs, 
-               shinybusy, 
+               shinybusy,
+               shinyWidgets, 
                GuardianR, 
                quanteda, 
                jsonlite, 

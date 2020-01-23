@@ -253,14 +253,14 @@ raw_data <- eventReactive(input$gather_data, {
 
 
 observeEvent(input$gather_data, {
-  output$imported_show <- renderDataTable({
+  output$imported_show <- DT::renderDataTable({
     
     if (input$import_from == "Spotify/Genius"){raw_data()[[1]]}
     else {raw_data()}
   })
-  output$pre_processed_show <- renderDataTable({
+  output$pre_processed_show <- DT::renderDataTable({
     imported()
-    })
+    }, filter = "bottom")
 })
 
 output$downloadData_imported <- downloadHandler(
@@ -271,3 +271,4 @@ output$downloadData_imported <- downloadHandler(
     write.csv(raw_data(), file, row.names = FALSE)
   }
 )
+

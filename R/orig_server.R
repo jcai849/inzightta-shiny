@@ -11,7 +11,7 @@ prepped <- eventReactive(input$prep_button, {
   })
   
   
-  imported() %>%
+  imported_filtered() %>%
     format_data(input$lemmatise, input$stopwords, input$sw_lexicon, addl_stopwords())
 })
 

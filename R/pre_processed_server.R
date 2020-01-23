@@ -51,11 +51,24 @@ imported <- reactive({
 
 #### output$pre_processed_show <- renderDataTable(imported()) in raw_data.R
 
+###################################
+########## able to filter the processed data columns 
+########## (used in prepped() orig_server.R, )
+###################################
+imported_filtered <- reactive({
+  full_data <- imported()
+  filtered_rows <- input$pre_processed_show_rows_all
+  full_data[filtered_rows, ]
+})
+
+
 output$downloadData_pre_processed <- downloadHandler(
   filename = function() {
     paste("preprocessed", ".csv", sep = "")
   },
   content = function(file) {
-    write.csv(imported(), file, row.names = FALSE)
+    write.csv(imported_filtered(), file, row.names = FALSE)
   }
 )
+
+

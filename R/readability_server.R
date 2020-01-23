@@ -12,7 +12,7 @@ output$flesch_plot <- renderPlot({
       req(global$selectedBar)
       insighted()[insighted()$id == global$selectedBar, "excerpt"]
     })
-    colors = ifelse(insighted()$id %in% c(imported()$id, "Text"), "red", "white")
+    colors = ifelse(insighted()$id %in% c(imported_filtered()$id, "Text"), "red", "white")
     
     ggplot(insighted(), aes(y = reorder(id, FK), x = FK, fill = FK)) +
       geom_barh(stat = "identity", alpha = 0.8) +
