@@ -13,8 +13,22 @@ raw_data <- eventReactive(input$gather_data, {
   
   if (input$import_from == "Twitter"){
     if (input$type == "user2") {
-      tweets <- get_timeline(input$user,
-                             n = input$num_tweets, token = twitter_token())
+      ###########################
+        withCallingHandlers({
+          shinyjs::html(id = "text", html = "")
+          tweets <- get_timeline(input$user,
+                                 n = input$num_tweets, token = twitter_token())
+        },
+        message = function(m) {
+          shinyjs::html(id = "text", html = m$message, add = TRUE)
+        },
+        warning = function(m) {
+          shinyjs::html(id = "text", html = m$message, add = TRUE)
+        })
+
+      
+      ###########################
+      
       if (input$include_retweets == FALSE){
         tweets <- tweets %>% filter(is_retweet == FALSE)
       }

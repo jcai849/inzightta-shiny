@@ -2,7 +2,19 @@
 text_sources = c("Upload .txt, .csv, .xlsx, or .xls file", "Project Gutenberg", "Twitter",
                  "Spotify/Genius", "The Guardian Articles", "stuff.co.nz Comments", "Reddit")
 
-
+appCSS <- "
+#loading-content {
+  position: absolute;
+  background: #000000;
+  opacity: 0.9;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  height: 100%;
+  text-align: center;
+  color: #FFFFFF;
+}
+"
 
 ui <- navbarPage("iNZight Text Analytics",
                  tabPanel("Processing",
@@ -50,6 +62,10 @@ ui <- navbarPage("iNZight Text Analytics",
                                            downloadButton("downloadData_imported", "Download as csv"),
                                            
                                            column(width = 12,
+                                                  ###################
+                                                  textOutput("text"), 
+                                                  ###################
+                                                  
                                                   dataTableOutput("imported_show")
                                                   #tableOutput("not_coll")
                                                   
@@ -109,10 +125,25 @@ ui <- navbarPage("iNZight Text Analytics",
                             ),
                             
                             mainPanel(
-                              
                               conditionalPanel(
                                 condition = "input.what_vis == 'Word Tree'",
-                                htmlOutput("shinytest")
+                              #######################
+                              # useShinyjs(),
+                              # inlineCSS(appCSS),
+
+                              # #Loading message
+                              # div(
+                              #   id = "loading-content",
+                              #   h2("Loading...")
+                              # ),
+                              # 
+                              #   hidden(
+                              #     div(id = "app-content",
+
+                                addSpinner(htmlOutput("shinytest"), spin = "fading-circle", color = "#000000")
+                              #))
+                                
+                              #######################
                               ),
                               conditionalPanel(
                                 condition =  "input.what_vis == 'Readability'",
