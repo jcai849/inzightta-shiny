@@ -1,3 +1,11 @@
+#####################################################
+#################### Pre-processed Data #################### 
+#####################################################
+
+# This file contains the server code that does the additional 
+# cleaning for the raw data and the code that presents the pre-processed data
+# as a data table. 
+
 imported <- reactive({
   ############################
   if (input$import_from == "Spotify/Genius"){

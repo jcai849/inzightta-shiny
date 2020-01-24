@@ -1,3 +1,11 @@
+#####################################################
+#################### Sidebar Panel #################### 
+#####################################################
+
+# This file containts the server code that changes the input options in the 
+# side bar panel depending on where the user wants to import text data from. 
+
+
 ##### Stopwords file upload
 shinyjs::onclick("toggleAdvanced4",
                  shinyjs::toggle(id = "advanced4", anim = TRUE))

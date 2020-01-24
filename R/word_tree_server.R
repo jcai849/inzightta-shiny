@@ -1,3 +1,9 @@
+#####################################################
+#################### Word Tree ###################### 
+#####################################################
+
+# This file contains the server code used to create the word tree plot from googleVis. 
+
 output$shinytest <- renderGvis({
   input$create_tree
   arts <- merged() %>% unnest_tokens(text, text, token = "sentences")

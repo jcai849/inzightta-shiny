@@ -1,3 +1,9 @@
+#####################################################
+#################### Readability (Sample Texts) #################### 
+#####################################################
+
+# This file contains the samples of text used as comparisons in readability plot. 
+
 samples <- data.frame(
   id = c("Alice's Adventures in Wonderland",
             "Little Women",

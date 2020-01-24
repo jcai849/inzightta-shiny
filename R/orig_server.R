@@ -1,3 +1,13 @@
+
+#####################################################
+#################### Original Server #################### 
+#####################################################
+
+# This file containts mostly the server code from the original inzightta shiny app. 
+# Added a button to download the data behind the visualization. Ongoing addition:
+# data table below vis plot
+
+
 prepped <- eventReactive(input$prep_button, {
   
   from_sw_file <- reactive({

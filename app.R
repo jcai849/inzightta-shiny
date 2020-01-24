@@ -29,10 +29,6 @@ if(!require(pacman)) install.packages("pacman")
 # 
 # library(googleVis)
 
-# source('C:/Users/Home/Desktop/stuff/reddit/pushshiftR.R')
-# source("C:\\Users\\Home\\Desktop\\stuff\\readability\\samples.R")
-
-
 # ##### Readability
 # library(shiny)
 # library(shinyBS)
@@ -43,7 +39,8 @@ if(!require(pacman)) install.packages("pacman")
 # library(ggthemes)
 # library(forcats)
 
-devtools::install_github("bernicecu/spotifyr")
+devtools::install_github('charlie86/spotifyr')
+
 pacman::p_load(
                spotifyr,
                shiny, 

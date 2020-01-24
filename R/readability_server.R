@@ -1,3 +1,12 @@
+#####################################################
+#################### Readability #################### 
+#####################################################
+
+# This file contains server code that produces the readability 
+# plot (data for ggplot comes from insighted() in orig_server.R, 
+# calls on function books_with_samples() in server_functions.R, 
+# sample texts live in a separate R file called samples.R)
+
 ############################ Readability Plot
 
 output$flesch_plot <- renderPlot({

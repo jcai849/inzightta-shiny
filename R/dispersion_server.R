@@ -1,3 +1,12 @@
+#####################################################
+#################### Key Words in Context 
+#################### & Lexical Dispersion Plot
+#####################################################
+
+# This file contains the code in server that groups the text by id and collapses them together, also
+# creates the lexical dispersion plot in Key Words in Context tab. 
+
+
 ######### Create reactive object merged text. Both for Dispersion Plot and for Readability
 merged <- reactive({
   merge_id(x = imported_filtered(), source = input$import_from, groups = input$groups)

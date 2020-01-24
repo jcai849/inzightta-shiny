@@ -1,3 +1,11 @@
+#####################################################
+#################### Raw Data    ####################
+#####################################################
+
+# This file contains the server code that 
+# imports the raw text data from the APIs/XML URL 
+# (token validation stuff in here and tidying up the data frames)
+
 
 twitter_token <- eventReactive(input$get_twitter_token,
                                {

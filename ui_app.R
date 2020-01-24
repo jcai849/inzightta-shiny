@@ -1,4 +1,3 @@
-
 text_sources = c("Upload .txt, .csv, .xlsx, or .xls file", "Project Gutenberg", "Twitter",
                  "Spotify/Genius", "The Guardian Articles", "stuff.co.nz Comments", "Reddit")
 
@@ -114,23 +113,7 @@ ui <- navbarPage("iNZight Text Analytics",
                             mainPanel(
                               conditionalPanel(
                                 condition = "input.what_vis == 'Word Tree'",
-                              #######################
-                              # useShinyjs(),
-                              # inlineCSS(appCSS),
-
-                              # #Loading message
-                              # div(
-                              #   id = "loading-content",
-                              #   h2("Loading...")
-                              # ),
-                              # 
-                              #   hidden(
-                              #     div(id = "app-content",
-
                                 addSpinner(htmlOutput("shinytest"), spin = "fading-circle", color = "#000000")
-                              #))
-                                
-                              #######################
                               ),
                               conditionalPanel(
                                 condition =  "input.what_vis == 'Readability'",
