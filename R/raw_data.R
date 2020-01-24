@@ -25,7 +25,6 @@ raw_data <- eventReactive(input$gather_data, {
         warning = function(m) {
           shinyjs::html(id = "text", html = m$message, add = TRUE)
         })
-
       
       ###########################
       
@@ -254,13 +253,9 @@ raw_data <- eventReactive(input$gather_data, {
 
 observeEvent(input$gather_data, {
   output$imported_show <- DT::renderDataTable({
-    
     if (input$import_from == "Spotify/Genius"){raw_data()[[1]]}
     else {raw_data()}
   })
-  output$pre_processed_show <- DT::renderDataTable({
-    imported()
-    }, filter = "bottom")
 })
 
 output$downloadData_imported <- downloadHandler(

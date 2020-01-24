@@ -32,13 +32,13 @@ clean_for_app <- function(df){
   
   #################
   df$text <- trimws(gsub("<.+?>|_", "", df$text))
-  df$text <- trimws(gsub("<.+?>|_", "", df$text))
+  
+  df$text <- textutils::HTMLdecode(df$text)
   df$text <- gsub("&\\w+?;", " ", df$text)
   
   df$text <- textclean::replace_contraction(df$text)
   df$text <- gsub("^\"|\"$", "", df$text)
   
-  df <- filter(df, !is.na(text))
   
   ##### for reddit
   df$text <- gsub("[[(]http.+?[[)]", "", df$text)
@@ -60,9 +60,9 @@ get_lyrics <- function(artist,song){
 }
 
 
-unescape_xml <- function(str){
-  xml2::xml_text(xml2::read_xml(paste0("<x>", str, "</x>")))
-}
+# unescape_xml <- function(str){
+#   xml2::xml_text(xml2::read_xml(paste0("<x>", str, "</x>")))
+# }
 
 #########################################################
 ##################### For readability, word tree, and lexical 
