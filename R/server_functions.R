@@ -278,11 +278,11 @@ textplot_xray.kwic <- function(..., scale = c("absolute", "relative"),
 
 
 #########################################################
-##################### From pushshift API (pushshiftR)
+##################### From pushshift API 
 ##################### importing data from reddit
 #########################################################
 
-#' Gets the pushshift data
+#' gets the pushshift data
 #'
 #' @param postType One of `submission` or `comment`
 #' @param title A string to search for in post titles
