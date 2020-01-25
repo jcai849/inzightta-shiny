@@ -6,21 +6,100 @@
 
 
 #########################################################
+##################### For readability, word tree, and lexical 
+##################### dispersion plot
+#########################################################
+
+# merge_id() groups the text by id and collapses them together into 
+# one long string
+
+merge_id <- function(x, source, groups){
+  if (source == "Project Gutenberg")
+  {
+    # If the book is from project gutenberg, find where the chapter breaks are.
+    search_chaps <- x %>% group_by(id) %>%
+      mutate(chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
+                                                     ignore_case = TRUE))))
+    
+    # If user wants to divide the books into chapters
+    ######## (NEED TO FIX. HOW ABOUT CANTOS, Books)
+    ######## (Can use group_by? see ui_app.R)
+    
+    if (groups == TRUE){
+      chaps <- search_chaps %>%
+        group_by(id, chapter) %>%
+        mutate(text = paste(text, collapse = " ")) %>%
+        distinct(text) %>% ungroup() %>%
+        mutate(id = paste(id, chapter))
+      chaps
+    }
+    
+    # Otherwise just merge together the text from the whole book. 
+    else{
+      by_id <- search_chaps %>% group_by(id) %>%
+        mutate(text = paste(text, collapse = " ")) %>%
+        distinct(text)
+      
+      by_id
+      
+    }
+    
+  }
+  
+  else if (source %in% c("The Guardian Articles", "Spotify/Genius", "Upload .txt, .csv, .xlsx, or .xls file")){
+    by_id <- x %>% group_by(id) %>%
+      mutate(text = paste(text, collapse = " ")) %>%
+      distinct(text)
+    by_id
+  }
+  
+  # For tweets, comments, etc 
+  else{
+    all_merged <- x %>% mutate(text = paste(text, collapse = ". ")) %>%
+      distinct(text) %>% mutate(id = "Text")
+    all_merged
+  }
+  
+}
+
+# get_kwic() creates kwic object to pass into textplot_xray() 
+# and for concordance table
+
+get_kwic <- function(merged, patt, window, value, case_ins){
+  words <- phrase(unlist(strsplit(patt, split = ",")))
+  corp <- corpus(merged, text_field = "text",
+                 docid_field = "id")
+  kwic(x = corp, pattern = words, window = window, valuetype = value, case_insensitive = case_ins)
+  
+}
+
+#########################################################
 ##################### For readability
 #########################################################
 
+# After merge_id() merges all the text for each id into one long string, 
+# books_with_samples() takes in this data frame containing the id and the merged text, 
+# then calculates the Flesch Kincaid score for each. 
+# Afterwards binding these together with the sample texts in samples.R and 
+# arranging the texts in ascending Flesch Kincaid score. 
 
 books_with_samples <- function(books){
+  # calculate the FK score of the text for each id
   books <- books %>%
     mutate(scores = map(text, quanteda::textstat_readability, measure = "Flesch.Kincaid"))
+  
+  # extract the scores and place them in their own column in the data frame
   FK <- numeric(0)
   for (i in 1:nrow(books)){
     FK[i] <- books[[3]][[i]][[2]]
   }
   books$FK <- FK
+  
+  # no sample excerpts for the texts provided
   books$excerpt <- ""
   books <- books %>% select(id, FK, excerpt)
   
+  # bind the provided texts with the sample (reference) texts
   samps <- rbind.data.frame(samples, books)
   samps %>% arrange(FK)
 }
@@ -71,64 +150,6 @@ get_lyrics <- function(artist,song){
 #   xml2::xml_text(xml2::read_xml(paste0("<x>", str, "</x>")))
 # }
 
-#########################################################
-##################### For readability, word tree, and lexical 
-##################### dispersion plot
-#########################################################
-
-# merge_id() groups the text by id and collapses them together
-
-merge_id <- function(x, source, groups){
-  if (source == "Project Gutenberg")
-  {
-    search_chaps <- x %>% group_by(id) %>%
-      mutate(chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                                     ignore_case = TRUE))))
-    
-    if (groups == TRUE){
-      chaps <- search_chaps %>%
-        group_by(id, chapter) %>%
-        mutate(text = paste(text, collapse = " ")) %>%
-        distinct(text) %>% ungroup() %>%
-        mutate(id = paste(id, chapter))
-      chaps
-    }
-    else{
-      by_id <- search_chaps %>% group_by(id) %>%
-        mutate(text = paste(text, collapse = " ")) %>%
-        distinct(text)
-      
-      by_id
-      
-    }
-    
-  }
-  
-  else if (source %in% c("The Guardian Articles", "Spotify/Genius", "Upload .txt, .csv, .xlsx, or .xls file")){
-    by_id <- x %>% group_by(id) %>%
-      mutate(text = paste(text, collapse = " ")) %>%
-      distinct(text)
-    by_id
-  }
-  
-  else{
-    all_merged <- x %>% mutate(text = paste(text, collapse = ". ")) %>%
-      distinct(text) %>% mutate(id = "Text")
-    all_merged
-  }
-  
-}
-
-# get_kwic() creates kwic object to pass into textplot_xray() 
-# and for concordance table
-
-get_kwic <- function(merged, patt, window, value, case_ins){
-  words <- phrase(unlist(strsplit(patt, split = ",")))
-  corp <- corpus(merged, text_field = "text",
-                 docid_field = "id")
-  kwic(x = corp, pattern = words, window = window, valuetype = value, case_insensitive = case_ins)
-  
-}
 
 #########################################################
 ##################### From quanteda - for lexical dispersion plot
@@ -270,33 +291,59 @@ textplot_xray.kwic <- function(..., scale = c("absolute", "relative"),
 #' @param after Only search for posts made after this data, specified as a UNIX epoch time
 #' @param before As `after`, but before
 #' @param subreddit Only return posts made in this subreddit
-# nest_level How deep to search? `nest_level = 1` returns only top-level comments
-#' @return A tibble of reddit submissions
-#' @export
-#' @importFrom jsonlite fromJSON
-#' @importFrom magrittr %>%
-#' @importFrom dplyr select filter
-#' @import tibble
-getPushshiftData <- function(postType, ...) {
+#' @param nest_level How deep to search? `nest_level = 1` returns only top-level comments
+
+getPushshiftData <- function(postType,
+                             title = NULL,
+                             size = NULL,
+                             q = NULL,
+                             after = NULL,
+                             before = NULL,
+                             subreddit = NULL,
+                             nest_level = NULL) {
   if(postType == "submission") {
-    getPushshiftURL(postType, ...) %>%
+    base_url <- "https://api.pushshift.io/reddit/search/submission/"
+    httr::GET(url = base_url, 
+              query = list(title = title,
+                           size = size,
+                           q = q,
+                           after = after,
+                           before = before,
+                           subreddit = subreddit,
+                           nest_level = nest_level, 
+                           sort = "asc")) %>%
+      .$url %>%
       jsonlite::fromJSON() %>%
       .$data %>%
       jsonlite::flatten(recursive = TRUE) %>%
       select(author, title, selftext, created_utc, permalink, num_comments, score, subreddit) %>%
       as_tibble() %>%
       rename(id = title) %>%
-      rename(text = selftext)
+      rename(text = selftext) %>%
+      arrange(created_utc)
     
-  } else {
-    getPushshiftURL(postType, ...) %>%
-      jsonlite::fromJSON() %>%
+  } 
+  
+  else {
+    base_url <- "https://api.pushshift.io/reddit/search/comment/"
+    httr::GET(url = base_url, 
+              query = list(title = title,
+                           size = size,
+                           q = q,
+                           after = after,
+                           before = before,
+                           subreddit = subreddit,
+                           nest_level = nest_level, 
+                           sort = "asc")) %>%
+      .$url %>%
+      fromJSON() %>%
       .$data %>%
       jsonlite::flatten(recursive = TRUE) %>%
       select(author, body, permalink, score, created_utc, subreddit) %>%
       as_tibble() %>%
       rename(id = permalink) %>%
-      rename(text = body)
+      rename(text = body) %>%
+      arrange(created_utc)
   }
 }
 
@@ -309,6 +356,7 @@ getPushshiftDataRecursive <- function(postType = "submission",
                                       subreddit = NULL,
                                       nest_level = NULL,
                                       delay = 0) {
+
   tmp <- getPushshiftData(postType,
                           title,
                           size,
@@ -317,12 +365,14 @@ getPushshiftDataRecursive <- function(postType = "submission",
                           before,
                           subreddit,
                           nest_level)
+  
   out <- tmp %>% filter(FALSE)
   on.exit(return(out), add = TRUE)
   after <- last(tmp$created_utc)
+  
   while(nrow(tmp) > 0) {
     message(
-      sprintf("%d %ss fetched, last date fetched: %s",
+      sprintf("%d %ss fetched, last date fetched: %s \n",
               nrow(tmp),
               postType,
               as.Date(as.POSIXct(as.numeric(after), origin = "1970-01-01"))))
@@ -336,38 +386,9 @@ getPushshiftDataRecursive <- function(postType = "submission",
                             before,
                             subreddit,
                             nest_level)
-    Sys.sleep(delay)
   }
+  Sys.sleep(delay)
 }
-
-getPushshiftURL <- function(postType = "submission",
-                            title = NULL,
-                            size = NULL,
-                            q = NULL,
-                            after = NULL,
-                            before = NULL,
-                            subreddit = NULL,
-                            nest_level = NULL) {
-  if(postType %!in% c("submission", "comment")) {
-    stop("postType must be one of `submission` or `comment`")
-  }
-  return(paste("https://api.pushshift.io/reddit/search/",
-               postType,
-               "?",
-               ifelse(is.null(title), "", sprintf("&title=%s", title)),
-               ifelse(is.null(size), "", sprintf("&size=%s", size)),
-               ifelse(is.null(q), "", sprintf("&q=%s", q)),
-               ifelse(is.null(after), "", sprintf("&after=%s", after)),
-               ifelse(is.null(before), "", sprintf("&before=%s", before)),
-               ifelse(is.null(subreddit), "", sprintf("&subreddit=%s", subreddit)),
-               ifelse(is.null(nest_level), "", sprintf("&nest_level=%s", nest_level)),
-               sep = ""))
-}
-#' An operator for 'not in'
-#' @param x
-#' @param y
-#' @return The complement of x %in% y
-'%!in%' <- function(x,y)!('%in%'(x,y))
 
 
 #########################################################
@@ -375,16 +396,19 @@ getPushshiftURL <- function(postType = "submission",
 ##################### (used in lexical div plot)
 #########################################################
 
+#' To present error message in plot outputs in shiny 
+#'
+#' @param ... Text strings to be printed in the plot window 
+#' @param sep A string to separate the strings provided in ...
+
 
 plot_exception <-function(
   ...,
-  sep=" ",
-  type=c("message","warning","cat","print"),
-  size = 6){      
-  type=match.arg(type)
-  txt = paste(...,collapse=sep)
+  sep=" "){      
+  
+  txt = paste(...,collapse = sep)
   print(ggplot2::ggplot() +
-          ggplot2::geom_text(ggplot2::aes(x=0,y=0,label=txt),color="red",size=size) + 
+          ggplot2::geom_text(ggplot2::aes(x = 0, y = 0, label = txt), color = "red", size = 6) + 
           ggplot2::theme_void())
   invisible(NULL)
 }
@@ -394,6 +418,12 @@ plot_exception <-function(
 ##################### package lexicon also has sentiment corresponding to 
 ##################### emojis (for use in sentimentr)
 #########################################################
+
+#' Convert the emojis/emoticons in a text vector to ::their description::
+#'
+#' @param x A character vector
+#' @param emoji_dt data frame where a column called "x" contains the emoji in 
+#' bytes and another column called "y" with its description
 
 emoji_to_words <- function(x, emoji_dt = lexicon::hash_emojis){
   Encoding(x) <- "latin1"

@@ -53,11 +53,14 @@ imported <- reactive({
   }
     
   else {
-    cleaned <- raw_data() %>% clean_for_app()
-      
     # for imported text files
-    cleaned$text <- gsub('""', "", cleaned$text)
+    cleaned <- raw_data() 
+    
+    #cleaned$text <- gsub('""', "", cleaned$text)
     cleaned$text <- gsub('" "', " ", cleaned$text)
+    cleaned$text <- str_squish(cleaned$text)
+    
+    cleaned <- cleaned %>% clean_for_app()
   }
   
   cleaned
